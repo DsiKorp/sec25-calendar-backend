@@ -4,15 +4,38 @@
 */
 
 import { Router } from 'express';
+import { check } from 'express-validator';
+import { validarCampos } from '../middlewares/validar-campos';
 const router = Router();
 const { getRequest, crearUsuario, loginUsuario, revalidarToken } = require('../controllers/authController');
 
-router.get('/', getRequest);
+// getRequest
+router.get(
+    '/',
+    getRequest
+);
 
-router.post('/new', crearUsuario);
+// crearUsuario
+router.post('/new',
+    [
+        check('name', 'El nombre es obligatorio').not().isEmpty(),
+        check('email', 'El email es obligatorio').isEmail(),
+        check('password', 'La contraseña debe ser de mínimo 6 caracteres').isLength({ min: 6 }),
+        validarCampos
+    ],
+    crearUsuario
+);
 
-router.post('/', loginUsuario);
+// loginUsuario
+router.post('/',
+    [
+        check('email', 'El email es obligatorio').isEmail(),
+        check('password', 'La contraseña debe ser de mínimo 6 caracteres').isLength({ min: 6 }),
+        validarCampos
+    ],
+    loginUsuario);
 
+// revalidarToken
 router.get('/renew', revalidarToken);
 
 
