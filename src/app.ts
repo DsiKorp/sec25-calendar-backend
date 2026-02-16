@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import { dbConnection } from './database/configDb';
 
+
 dotenv.config();
 
 //console.log(process.env.DB_CNN);
@@ -24,6 +25,7 @@ app.use(express.json());
 
 // Rutas
 app.use('/api/auth', require('./routes/authRoutes'));
+app.use('/api/events', require('./routes/eventsRoutes'));
 
 // Escuchar peticiones
 app.listen(process.env.PORT, () => {
