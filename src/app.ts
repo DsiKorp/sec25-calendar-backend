@@ -1,5 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
 import { dbConnection } from './database/configDb';
 
 dotenv.config();
@@ -8,17 +9,21 @@ dotenv.config();
 
 // Crear servidor de express
 const app = express();
+
 // Conectar a la base de datos
 dbConnection();
+
+// CORS
+app.use(cors());
+
 // Middleware para servir archivos estáticos cuando se accede a la raíz del sitio
 app.use(express.static('public'));
+
 // Middleware para parsear el cuerpo de las solicitudes
 app.use(express.json());
 
-
 // Rutas
 app.use('/api/auth', require('./routes/authRoutes'));
-
 
 // Escuchar peticiones
 app.listen(process.env.PORT, () => {

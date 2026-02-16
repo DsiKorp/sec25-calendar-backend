@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcryptjs'
 
 import { Usuario } from '../models/Usuario';
+import { generarJWT } from '../helpers/jwt.helper';
 
 export const getRequest = (req: Request, res: Response) => {
     console.log('Petición GET /');
@@ -39,7 +40,8 @@ export const crearUsuario = async (req: Request, res: Response) => {
             ok: true,
             msg: 'Registro correcto',
             uid: usuario.id,
-            name: usuario.name
+            name: usuario.name,
+            token: await generarJWT(usuario.id, usuario.name)
         });
     } catch (error) {
         console.log(error);
@@ -81,8 +83,8 @@ export const loginUsuario = async (req: Request, res: Response) => {
             ok: true,
             msg: 'Login correcto',
             uid: usuario.id,
-            name: usuario.name
-
+            name: usuario.name,
+            token: await generarJWT(usuario.id, usuario.name)
         });
     } catch (error) {
         console.log(error);
@@ -97,11 +99,19 @@ export const loginUsuario = async (req: Request, res: Response) => {
 
 };
 
-export const revalidarToken = (req: Request, res: Response) => {
+export const revalidarToken = async (req: Request, res: Response) => {
+    //const uid = req.uid;
+    //const name = req.name;
+
+    const { uid, name } = req;
+
     console.log('Petición POST /renew');
     res.json({
         ok: true,
-        msg: 'Renew /renew'
+        msg: '/renew',
+        // uid,
+        // name,
+        token: await generarJWT(uid!, name!)
     });
 };
 

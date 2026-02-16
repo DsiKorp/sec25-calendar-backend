@@ -6,8 +6,10 @@
 import { Router } from 'express';
 import { check } from 'express-validator';
 import { validarCampos } from '../middlewares/validar-campos';
+import { validarJWT } from '../middlewares/validar-jwt';
+import { getRequest, crearUsuario, loginUsuario, revalidarToken } from '../controllers/authController';
+
 const router = Router();
-const { getRequest, crearUsuario, loginUsuario, revalidarToken } = require('../controllers/authController');
 
 // getRequest
 router.get(
@@ -36,7 +38,7 @@ router.post('/',
     loginUsuario);
 
 // revalidarToken
-router.get('/renew', revalidarToken);
+router.get('/renew', validarJWT, revalidarToken);
 
 
 
