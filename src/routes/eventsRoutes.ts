@@ -12,26 +12,28 @@ import { isDate } from '../helpers/isDate';
 const router = Router();
 // Todas las rutas deben pasar por la validación del JWT
 router.use(validarJWT);
-router.get('/',
-    [
-        // check('title', 'El título es obligatorio').not().isEmpty(),
-        // validarCampos
-    ],
-    getEventos);
+
+router.get('/', [], getEventos);
 
 router.post('/',
     [
-        // check('title', 'El título es obligatorio').not().isEmpty(),
-        // check('start', 'La fecha de inicio es obligatoria').custom(isDate),
-        // check('end', 'La fecha de fin es obligatoria').custom(isDate),
-
-        // validarCampos
+        check('title', 'El título es obligatorio').not().isEmpty(),
+        check('start', 'La fecha de inicio es obligatoria').custom(isDate),
+        check('end', 'La fecha de fin es obligatoria').custom(isDate),
+        validarCampos
     ],
     crearEvento);
 
-// router.put('/:id', [], actualizarEvento);
+router.put('/:id',
+    [
+        check('title', 'El título es obligatorio').not().isEmpty(),
+        check('start', 'La fecha de inicio es obligatoria').custom(isDate),
+        check('end', 'La fecha de fin es obligatoria').custom(isDate),
+        validarCampos
+    ],
+    actualizarEvento);
 
-// router.delete('/:id', [], eliminarEvento);
+router.delete('/:id', [], eliminarEvento);
 
 
 module.exports = router;

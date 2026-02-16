@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import { title } from "node:process";
 
 const EventoSchema = new Schema({
     title: {
@@ -22,6 +21,14 @@ const EventoSchema = new Schema({
         ref: 'Usuario',
         required: true
     }
+});
+
+// Para modificar el comportamiento del método toJSON de Mongoose
+// Esto es para eliminar el campo __v y _id, 
+// y agregar un campo id con el valor de _id
+EventoSchema.method('toJSON', function () {
+    const { __v, _id, ...object } = this.toObject();
+    return { ...object, id: _id };
 });
 
 export const Evento = model('Evento', EventoSchema);
