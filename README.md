@@ -48,6 +48,8 @@ SECRET_JWT_SEED=tu_clave_super_segura
 
 ```bash
 npm run dev
+ó
+npm run dev:nodemon
 ```
 
 ---
@@ -374,13 +376,20 @@ Incluye transformación `toJSON` para:
 ## 📦 Scripts npm
 
 ```bash
-npm run dev
-npm run build
-npm start
+- `npm run dev`  
+  Inicia el backend en modo desarrollo con recarga automática (según tu configuración de TypeScript/Nodemon).
+
+- `npm run dev:nodemon`  
+  Inicia el backend explícitamente con **nodemon** + **ts-node** para reinicios automáticos al guardar cambios.
+
+- `npm run build`  
+  Compila el proyecto TypeScript a JavaScript (normalmente en la carpeta `dist/`).
+
+- `npm start`  
+  Ejecuta la versión compilada del backend (entorno más cercano a producción).
+
+> Nota: los comandos exactos dependen de cómo estén definidos en `package.json`.
 ```
-
-> Si usas nodemon + ts-node, el script puede variar según tu `package.json`.
-
 ---
 
 ## 🧪 Pruebas rápidas (Windows CMD)
