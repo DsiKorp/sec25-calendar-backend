@@ -1,82 +1,119 @@
 # Calendar Backend
 
-Backend API para aplicación de calendario desarrollado con Node.js, Express, TypeScript y MongoDB.
+API REST para gestión de autenticación y eventos de calendario, construida con **Node.js + Express + TypeScript + MongoDB**.
+
+---
 
 ## 🚀 Tecnologías
 
-- **Node.js** con **TypeScript**
-- **Express.js** - Framework web
-- **MongoDB** con **Mongoose** - Base de datos
-- **JWT** - Autenticación
-- **bcryptjs** - Encriptación de contraseñas
-- **express-validator** - Validación de datos
-- **CORS** - Configuración de políticas de acceso
+- **Node.js**
+- **TypeScript**
+- **Express**
+- **MongoDB + Mongoose**
+- **JWT** (autenticación)
+- **bcryptjs** (hash de contraseñas)
+- **express-validator** (validaciones)
+- **cors**
+- **dotenv**
 
-## 📋 Prerequisitos
+---
 
-- Node.js (v14 o superior)
-- MongoDB
-- npm o yarn
+## 📋 Requisitos previos
 
-## 🛠️ Instalación
+- Node.js 18+ recomendado
+- MongoDB local o remoto (Mongo Atlas)
+- npm
 
-1. Clona el repositorio
-```bash
-git clone <repository-url>
-cd sec25-calendar-backend
-```
+---
 
-2. Instala las dependencias
+## ⚙️ Configuración del proyecto
+
+### 1) Instalar dependencias
+
 ```bash
 npm install
 ```
 
-3. Configura las variables de entorno
-Crea un archivo `.env` en la raíz del proyecto:
+### 2) Variables de entorno
+
+Crear archivo `.env` en la raíz:
+
 ```env
 PORT=4000
 DB_CNN=mongodb://localhost:27017/calendar-db
-SECRET_JWT_SEED=tu-secret-key-super-segura
+SECRET_JWT_SEED=tu_clave_super_segura
 ```
 
-4. Ejecuta el servidor en modo desarrollo
+### 3) Levantar en desarrollo
+
 ```bash
 npm run dev
 ```
 
-## 📁 Estructura del Proyecto
+---
 
-```
+## 📁 Estructura (resumen)
+
+```text
 src/
-├── app.ts              # Configuración principal del servidor
-├── controllers/        # Controladores de rutas
-├── database/          # Configuración de base de datos
-├── helpers/           # Utilidades y helpers
-├── middlewares/       # Middlewares personalizados
-├── models/           # Modelos de MongoDB
-└── routes/           # Definición de rutas
+├── app.ts
+├── controllers/
+│   ├── authController.ts
+│   └── eventsController.ts
+├── database/
+│   └── configDb.ts
+├── helpers/
+│   ├── jwt.ts
+│   └── isDate.ts
+├── middlewares/
+│   ├── validar-campos.ts
+│   └── validar-jwt.ts
+├── models/
+│   ├── Usuario.ts
+│   └── Evento.ts
+└── routes/
+    ├── authRoutes.ts
+    └── eventsRoutes.ts
 ```
 
-## 🔗 API Endpoints
+---
 
-### Autenticación (`/api/auth`)
+## 🔐 Autenticación
 
-#### **GET** `/api/auth/`
-- **Descripción**: Endpoint de prueba
-- **Respuesta**:
+La API usa **JWT**.  
+Para rutas protegidas se debe enviar:
+
+```http
+x-token: <jwt>
+```
+
+---
+
+## 🔗 Endpoints
+
+## 1) Auth (`/api/auth`)
+
+### `GET /api/auth/`
+Endpoint de prueba (si está definido en tu `authRoutes.ts`).
+
+**Response ejemplo**
 ```json
 {
   "msg": "Hola Mundo /"
 }
 ```
 
-#### **POST** `/api/auth/new`
-- **Descripción**: Registro de nuevo usuario
-- **Validaciones**:
-  - `name`: Requerido, no puede estar vacío
-  - `email`: Requerido, debe ser un email válido
-  - `password`: Requerido, mínimo 6 caracteres
-- **Body**:
+---
+
+### `POST /api/auth/new`
+Registrar usuario.
+
+**Validaciones**
+- `name`: obligatorio
+- `email`: obligatorio y formato válido
+- `password`: obligatorio, mínimo 6 caracteres
+
+**Body**
 ```json
 {
   "name": "Juan Pérez",
@@ -84,149 +121,312 @@ src/
   "password": "123456"
 }
 ```
-- **Respuesta exitosa** (201):
+
+**200/201 Response ejemplo**
 ```json
 {
   "ok": true,
-  "msg": "Registro correcto",
-  "uid": "user-id",
+  "uid": "65f0d2...",
   "name": "Juan Pérez",
-  "token": "jwt-token"
+  "token": "jwt_token"
 }
 ```
-- **Errores**:
-  - 400: Usuario ya existe con ese email
-  - 500: Error interno del servidor
 
-#### **POST** `/api/auth/`
-- **Descripción**: Inicio de sesión
-- **Validaciones**:
-  - `email`: Requerido, debe ser un email válido
-  - `password`: Requerido, mínimo 6 caracteres
-- **Body**:
+**Errores comunes**
+- `400` usuario ya existe / validaciones
+- `500` error interno
+
+---
+
+### `POST /api/auth/`
+Login de usuario.
+
+**Validaciones**
+- `email`: obligatorio y formato válido
+- `password`: obligatorio, mínimo 6 caracteres
+
+**Body**
 ```json
 {
   "email": "juan@example.com",
   "password": "123456"
 }
 ```
-- **Respuesta exitosa**:
+
+**200 Response ejemplo**
 ```json
 {
   "ok": true,
-  "msg": "Login correcto",
-  "uid": "user-id",
+  "uid": "65f0d2...",
   "name": "Juan Pérez",
-  "token": "jwt-token"
+  "token": "jwt_token"
 }
 ```
-- **Errores**:
-  - 400: Usuario no existe o contraseña incorrecta
-  - 500: Error interno del servidor
 
-#### **GET** `/api/auth/renew`
-- **Descripción**: Renovar token JWT
-- **Headers requeridos**:
+**Errores comunes**
+- `400` credenciales inválidas
+- `500` error interno
+
+---
+
+### `GET /api/auth/renew`
+Renovar token.
+
+**Headers**
+```http
+x-token: jwt_token
 ```
-x-token: jwt-token
-```
-- **Respuesta exitosa**:
+
+**200 Response ejemplo**
 ```json
 {
   "ok": true,
-  "msg": "/renew",
-  "token": "new-jwt-token"
+  "uid": "65f0d2...",
+  "name": "Juan Pérez",
+  "token": "new_jwt_token"
 }
 ```
-- **Errores**:
-  - 401: Token no válido o no proporcionado
 
-## 🛡️ Middlewares
+**Errores comunes**
+- `401` token faltante o inválido
 
-### Validación de Campos
-- **Archivo**: [`validar-campos.ts`](src/middlewares/validar-campos.ts)
-- **Función**: Valida los campos usando express-validator
+---
 
-### Validación de JWT
-- **Archivo**: [`validar-jwt.ts`](src/middlewares/validar-jwt.ts)
-- **Función**: Verifica la validez del token JWT
-- **Header requerido**: `x-token`
+## 2) Eventos (`/api/events`)
 
-## 🗃️ Modelos de Datos
+> Todas las rutas de eventos están protegidas con `validarJWT`.
 
-### Usuario
-- **Archivo**: [`Usuario.ts`](src/models/Usuario.ts)
-- **Campos**:
-  - `name`: String (requerido)
-  - `email`: String (requerido, único)
-  - `password`: String (encriptado)
+### `GET /api/events`
+Listar eventos.
 
-## 🔐 Autenticación
+**Headers**
+```http
+x-token: jwt_token
+```
 
-El sistema utiliza **JWT (JSON Web Tokens)** para la autenticación:
-
-1. Al registrarse o iniciar sesión, el usuario recibe un token
-2. Este token debe incluirse en el header `x-token` para rutas protegidas
-3. El token contiene: `uid`, `name`, `iat`, `exp`
-
-## 🚨 Manejo de Errores
-
-### Códigos de Estado HTTP:
-- **200**: Operación exitosa
-- **201**: Recurso creado exitosamente
-- **400**: Error de validación o datos incorrectos
-- **401**: No autorizado (token inválido o faltante)
-- **500**: Error interno del servidor
-
-### Estructura de Respuesta de Error:
+**200 Response ejemplo**
 ```json
 {
-  "ok": false,
-  "msg": "Descripción del error"
+  "ok": true,
+  "eventos": [
+    {
+      "id": "65f1ab...",
+      "title": "Daily",
+      "notes": "Seguimiento",
+      "start": "2026-02-16T14:00:00.000Z",
+      "end": "2026-02-16T14:30:00.000Z",
+      "user": {
+        "_id": "65f0d2...",
+        "name": "Juan Pérez"
+      }
+    }
+  ]
 }
 ```
 
-## 🧪 Testing
+---
 
-Para probar los endpoints puedes usar herramientas como:
-- **Postman**
-- **Thunder Client** (extensión de VS Code)
-- **curl**
+### `POST /api/events`
+Crear evento.
 
-### Ejemplo con curl:
-```bash
-# Registro
-curl -X POST http://localhost:4000/api/auth/new \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Test User","email":"test@example.com","password":"123456"}'
+**Validaciones**
+- `title`: obligatorio
+- `start`: obligatorio y fecha válida
+- `end`: obligatorio y fecha válida
 
-# Login
-curl -X POST http://localhost:4000/api/auth/ \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"123456"}'
+> En este proyecto suele validarse fecha con helper `isDate`.
 
-# Renovar token
-curl -X GET http://localhost:4000/api/auth/renew \
-  -H "x-token: your-jwt-token"
+**Body**
+```json
+{
+  "title": "Planning",
+  "notes": "Sprint planning",
+  "start": "2026-02-16T09:00:00.000Z",
+  "end": "2026-02-16T10:00:00.000Z"
+}
 ```
 
-## 📝 Scripts Disponibles
-
-```bash
-npm run dev      # Ejecutar en modo desarrollo con nodemon
-npm run build    # Compilar TypeScript a JavaScript
-npm start        # Ejecutar versión compilada
+**200/201 Response ejemplo**
+```json
+{
+  "ok": true,
+  "evento": {
+    "id": "65f1ab...",
+    "title": "Planning",
+    "notes": "Sprint planning",
+    "start": "2026-02-16T09:00:00.000Z",
+    "end": "2026-02-16T10:00:00.000Z",
+    "user": "65f0d2..."
+  }
+}
 ```
 
-## 🤝 Contribución
+---
 
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+### `PUT /api/events/:id`
+Actualizar evento.
+
+**Validaciones**
+- `id` en URL
+- `title`: obligatorio
+- `start`: fecha válida
+- `end`: fecha válida
+
+**Body ejemplo**
+```json
+{
+  "title": "Planning actualizado",
+  "notes": "Cambios de agenda",
+  "start": "2026-02-16T09:30:00.000Z",
+  "end": "2026-02-16T10:30:00.000Z"
+}
+```
+
+**200 Response ejemplo**
+```json
+{
+  "ok": true,
+  "evento": {
+    "id": "65f1ab...",
+    "title": "Planning actualizado",
+    "notes": "Cambios de agenda",
+    "start": "2026-02-16T09:30:00.000Z",
+    "end": "2026-02-16T10:30:00.000Z",
+    "user": "65f0d2..."
+  }
+}
+```
+
+**Errores comunes**
+- `404` evento no existe
+- `401` usuario no autorizado para editar ese evento
+
+---
+
+### `DELETE /api/events/:id`
+Eliminar evento.
+
+**Validaciones**
+- `id` en URL
+
+**200 Response ejemplo**
+```json
+{
+  "ok": true,
+  "msg": "Evento eliminado"
+}
+```
+
+**Errores comunes**
+- `404` evento no existe
+- `401` usuario no autorizado para eliminar ese evento
+
+---
+
+## 🧩 Middlewares
+
+### `validar-campos.ts`
+Procesa errores de `express-validator` y responde `400` si hay errores de entrada.
+
+### `validar-jwt.ts`
+- Lee token desde `x-token`
+- Verifica JWT
+- Inyecta `uid` y `name` del usuario autenticado en el `request`
+- Responde `401` si el token no es válido
+
+---
+
+## ✅ Reglas de validación (resumen)
+
+### Auth
+- `name`: no vacío
+- `email`: formato email
+- `password`: mínimo 6
+
+### Events
+- `title`: no vacío
+- `start`: fecha válida
+- `end`: fecha válida
+- `x-token`: obligatorio para todas las rutas de `/api/events`
+
+---
+
+## 🧠 Modelos
+
+### Usuario (`src/models/Usuario.ts`)
+- `name` (String, requerido)
+- `email` (String, requerido, único)
+- `password` (String, requerido)
+
+### Evento (`src/models/Evento.ts`)
+- `title` (String, requerido)
+- `notes` (String, opcional)
+- `start` (Date, requerido)
+- `end` (Date, requerido)
+- `user` (ObjectId ref `Usuario`, requerido)
+
+Incluye transformación `toJSON` para:
+- remover `__v`
+- mapear `_id` => `id`
+
+---
+
+## 📦 Scripts npm
+
+```bash
+npm run dev
+npm run build
+npm start
+```
+
+> Si usas nodemon + ts-node, el script puede variar según tu `package.json`.
+
+---
+
+## 🧪 Pruebas rápidas (Windows CMD)
+
+### Registro
+```bash
+curl -X POST http://localhost:4000/api/auth/new ^
+  -H "Content-Type: application/json" ^
+  -d "{\"name\":\"Juan\",\"email\":\"juan@example.com\",\"password\":\"123456\"}"
+```
+
+### Login
+```bash
+curl -X POST http://localhost:4000/api/auth ^
+  -H "Content-Type: application/json" ^
+  -d "{\"email\":\"juan@example.com\",\"password\":\"123456\"}"
+```
+
+### Obtener eventos
+```bash
+curl -X GET http://localhost:4000/api/events ^
+  -H "x-token: TU_TOKEN"
+```
+
+### Crear evento
+```bash
+curl -X POST http://localhost:4000/api/events ^
+  -H "Content-Type: application/json" ^
+  -H "x-token: TU_TOKEN" ^
+  -d "{\"title\":\"Daily\",\"notes\":\"Seguimiento\",\"start\":\"2026-02-16T14:00:00.000Z\",\"end\":\"2026-02-16T14:30:00.000Z\"}"
+```
+
+---
+
+## 🚨 Códigos HTTP usados
+
+- `200` OK
+- `201` Created
+- `400` Bad Request (validación/negocio)
+- `401` Unauthorized
+- `404` Not Found
+- `500` Internal Server Error
+
+---
 
 ## 📄 Licencia
 
-Este proyecto está bajo la licencia MIT.
+MIT
 
